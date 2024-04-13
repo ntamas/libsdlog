@@ -49,9 +49,9 @@ void test_ostream_file(void)
     TEST_ASSERT_NOT_NULL(fp);
     TEST_CHECK(sdlog_ostream_init_file(&stream, fp));
 
-    TEST_CHECK(sdlog_ostream_write(&stream, template, 20));
+    TEST_CHECK(sdlog_ostream_write_all(&stream, template, 20));
     TEST_CHECK(sdlog_ostream_flush(&stream));
-    TEST_ERROR(SDLOG_EWRITE, sdlog_ostream_write(&stream, template, 20));
+    TEST_ERROR(SDLOG_EWRITE, sdlog_ostream_write_all(&stream, template, 20));
     TEST_ASSERT_EQUAL_STRING_LEN("12345678901234567890123456789012", buf, 32);
 
     sdlog_ostream_destroy(&stream);
@@ -68,7 +68,7 @@ void test_ostream_null(void)
     sdlog_ostream_t stream;
 
     TEST_CHECK(sdlog_ostream_init_null(&stream));
-    TEST_CHECK(sdlog_ostream_write(&stream, template, 20));
+    TEST_CHECK(sdlog_ostream_write_all(&stream, template, 20));
     TEST_CHECK(sdlog_ostream_flush(&stream));
     sdlog_ostream_destroy(&stream);
 }
@@ -82,10 +82,15 @@ void test_ostream_buffer(void)
 
     TEST_CHECK(sdlog_ostream_init_buffer(&stream));
 
-    TEST_CHECK(sdlog_ostream_write(&stream, template, 20));
+    /* To test zero-length writes */
+    TEST_CHECK(sdlog_ostream_write(&stream, template, 0, &length));
+    TEST_ASSERT_EQUAL(0, length);
+    TEST_CHECK(sdlog_ostream_write(&stream, template, 0, NULL));
+
+    TEST_CHECK(sdlog_ostream_write_all(&stream, template, 20));
     TEST_CHECK(sdlog_ostream_flush(&stream));
-    TEST_CHECK(sdlog_ostream_write(&stream, template, 20));
-    TEST_CHECK(sdlog_ostream_write(&stream, template, 20));
+    TEST_CHECK(sdlog_ostream_write_all(&stream, template, 20));
+    TEST_CHECK(sdlog_ostream_write_all(&stream, template, 20));
 
     buf = sdlog_ostream_buffer_get(&stream, &length);
     TEST_ASSERT_EQUAL(60, length);

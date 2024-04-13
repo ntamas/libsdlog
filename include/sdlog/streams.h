@@ -46,10 +46,10 @@ struct sdlog_ostream_s;
  * Typically you do not need to create this struct directly; you can use one
  * of the predefined factory methods of \ref sdlog_ostream_t to create an
  * output stream that writes to a sink, a file or a buffer. You need to create
- * instances of this type only if you want to implement your own stream type
- * from scratch.
+ * instances of this struct only if you want to implement your own output stream
+ * type from scratch.
  */
-typedef struct sdlog_ostream_spec_c {
+typedef struct {
     /** Callback that is called when the stream is created */
     sdlog_error_t (*init)(struct sdlog_ostream_s* self);
 
@@ -59,10 +59,27 @@ typedef struct sdlog_ostream_spec_c {
     /** Notifies the stream that it will start receiving data from a writer */
     sdlog_error_t (*begin)(struct sdlog_ostream_s* self);
 
-    /** Writes an arbitrary byte array to the stream */
-    sdlog_error_t (*write)(struct sdlog_ostream_s* self, uint8_t* data, size_t length);
+    /**
+     * Writes an arbitrary byte array to the stream.
+     *
+     * It is up to the stream to define whether the function is blocking or
+     * nonblocking. Nonblocking writes may write a smaller number of bytes to
+     * the stream. The number of bytes actually written must be returned in an
+     * output argument.
+     *
+     * Returns success if at least one byte was written.
+     *
+     * \c bytes_written is guaranteed not to be a null pointer. \c length is
+     * guaranteed to be positive.
+     */
+    sdlog_error_t (*write)(
+        struct sdlog_ostream_s* self, uint8_t* data, size_t length,
+        size_t* bytes_written);
 
-    /** Flushes all pending writes to the stream if the stream is buffered */
+    /**
+     * Flushes all pending writes to the stream if the stream is buffered.
+     * No-op if the stream is not buffered.
+     */
     sdlog_error_t (*flush)(struct sdlog_ostream_s* self);
 
     /** Notifies the stream that the current writing session has ended */
@@ -151,9 +168,42 @@ sdlog_error_t sdlog_ostream_flush(sdlog_ostream_t* stream);
 /**
  * @brief Writes some bytes to an output stream.
  *
- * @param stream  the stream to write to
+ * It is up to the stream to define whether the function is blocking or
+ * nonblocking. Nonblocking writes may write a smaller number of bytes to
+ * the stream. The number of bytes actually written must be returned in an
+ * output argument.
+ *
+ * if you want to ensure that the entire buffer is written, use
+ * \ref sdlog_ostream_write_all(), which may block indefinitely.
+ *
+ * Returns success if at least one byte was written or if the input had
+ * zero length.
+ *
+ * @param stream        the stream to write to
+ * @param data          the buffer to write
+ * @param length        the length of the buffer
+ * @param bytes_written when not null, the number of bytes written is returned here
  */
-sdlog_error_t sdlog_ostream_write(sdlog_ostream_t* stream, uint8_t* data, size_t length);
+sdlog_error_t sdlog_ostream_write(
+    sdlog_ostream_t* stream, uint8_t* data, size_t length,
+    size_t* bytes_written);
+
+/**
+ * @brief Writes all the bytes in a buffer to an output stream.
+ *
+ * Unlike \ref sdlog_ostream_write(), this function ensures that all the bytes
+ * in the buffer are written to the stream. This is done by retrying writes if
+ * the previous write attempt did not deliver all of them, but this also means
+ * that the function may potentially block the calling thread.
+ *
+ * Returns success if and only if the entire buffer was written.
+ *
+ * @param stream        the stream to write to
+ * @param data          the buffer to write
+ * @param length        the length of the buffer
+ */
+sdlog_error_t sdlog_ostream_write_all(
+    sdlog_ostream_t* stream, uint8_t* data, size_t length);
 
 /**
  * @brief Returns the internal buffer previously created by \c sdlog_ostream_init_buffer.

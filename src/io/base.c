@@ -70,9 +70,41 @@ sdlog_error_t sdlog_ostream_flush(sdlog_ostream_t* stream)
         : SDLOG_SUCCESS;
 }
 
-sdlog_error_t sdlog_ostream_write(sdlog_ostream_t* stream, uint8_t* data, size_t length)
+sdlog_error_t sdlog_ostream_write(
+    sdlog_ostream_t* stream, uint8_t* data, size_t length, size_t* bytes_written)
 {
+    size_t dummy;
+
+    if (length == 0) {
+        if (bytes_written) {
+            *bytes_written = 0;
+        }
+        return SDLOG_SUCCESS;
+    }
+
     return stream->methods->write
-        ? stream->methods->write(stream, data, length)
+        ? stream->methods->write(stream, data, length, bytes_written ? bytes_written : &dummy)
         : SDLOG_UNIMPLEMENTED;
+}
+
+sdlog_error_t sdlog_ostream_write_all(
+    sdlog_ostream_t* stream, uint8_t* data, size_t length)
+{
+    uint8_t* buf = data;
+    size_t written;
+
+    while (length > 0) {
+        SDLOG_CHECK(sdlog_ostream_write(stream, buf, length, &written));
+        if (written <= length) {
+            length -= written;
+            buf += written;
+        } else {
+            /* Should not happen */
+            /* LCOV_EXCL_START */
+            return SDLOG_EWRITE;
+            /* LCOV_EXCL_STOP */
+        }
+    }
+
+    return SDLOG_SUCCESS;
 }

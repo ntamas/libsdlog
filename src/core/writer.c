@@ -243,8 +243,8 @@ static sdlog_error_t write_record_va(sdlog_writer_t* writer, const sdlog_message
         }
     }
 
-    SDLOG_CHECK(sdlog_ostream_write(writer->stream, header, sizeof(header)));
-    SDLOG_CHECK(sdlog_ostream_write(writer->stream, writer->buf, write_ptr - writer->buf));
+    SDLOG_CHECK(sdlog_ostream_write_all(writer->stream, header, sizeof(header)));
+    SDLOG_CHECK(sdlog_ostream_write_all(writer->stream, writer->buf, write_ptr - writer->buf));
 
     return SDLOG_SUCCESS;
 }

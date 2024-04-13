@@ -37,7 +37,8 @@ typedef struct {
 } context_t;
 
 static void buffer_destroy(sdlog_ostream_t* stream);
-static sdlog_error_t buffer_write(sdlog_ostream_t* stream, uint8_t* data, size_t length);
+static sdlog_error_t buffer_write(
+    sdlog_ostream_t* stream, uint8_t* data, size_t length, size_t* written);
 static size_t buffer_length(sdlog_ostream_t* stream);
 static size_t buffer_remaining(sdlog_ostream_t* stream);
 static sdlog_error_t buffer_grow(sdlog_ostream_t* stream);
@@ -80,7 +81,8 @@ static void buffer_destroy(sdlog_ostream_t* stream)
     free(ctx);
 }
 
-static sdlog_error_t buffer_write(sdlog_ostream_t* stream, uint8_t* data, size_t length)
+static sdlog_error_t buffer_write(
+    sdlog_ostream_t* stream, uint8_t* data, size_t length, size_t* written)
 {
     context_t* ctx = CONTEXT_AS(context_t);
 
@@ -90,6 +92,7 @@ static sdlog_error_t buffer_write(sdlog_ostream_t* stream, uint8_t* data, size_t
 
     memcpy(ctx->end, data, length);
     ctx->end += length;
+    *written = length;
 
     return SDLOG_SUCCESS;
 }

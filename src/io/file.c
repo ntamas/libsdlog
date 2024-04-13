@@ -34,7 +34,8 @@ typedef struct {
 
 static void file_destroy(sdlog_ostream_t* stream);
 static sdlog_error_t file_flush(sdlog_ostream_t* stream);
-static sdlog_error_t file_write(sdlog_ostream_t* stream, uint8_t* data, size_t length);
+static sdlog_error_t file_write(
+    sdlog_ostream_t* stream, uint8_t* data, size_t length, size_t* written);
 
 const sdlog_ostream_spec_t sdlog_ostream_file_methods = {
     .destroy = file_destroy,
@@ -65,8 +66,10 @@ static sdlog_error_t file_flush(sdlog_ostream_t* stream)
     return fflush(ctx->fp) ? SDLOG_EWRITE : SDLOG_SUCCESS;
 }
 
-static sdlog_error_t file_write(sdlog_ostream_t* stream, uint8_t* data, size_t length)
+static sdlog_error_t file_write(
+    sdlog_ostream_t* stream, uint8_t* data, size_t length, size_t* written)
 {
     context_t* ctx = CONTEXT_AS(context_t);
-    return fwrite(data, sizeof(uint8_t), length, ctx->fp) == length ? SDLOG_SUCCESS : SDLOG_EWRITE;
+    *written = fwrite(data, sizeof(uint8_t), length, ctx->fp);
+    return *written > 0 ? SDLOG_SUCCESS : SDLOG_EWRITE;
 }
