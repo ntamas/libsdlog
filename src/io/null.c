@@ -22,18 +22,24 @@
  * SOFTWARE.
  */
 
-#ifndef SDLOG_DECLS_H
-#define SDLOG_DECLS_H
+#include <stdlib.h>
 
-#undef __BEGIN_DECLS
-#undef __END_DECLS
-#ifdef __cplusplus
-#define __BEGIN_DECLS \
-    extern "C" {
-#define __END_DECLS }
-#else
-#define __BEGIN_DECLS /* empty */
-#define __END_DECLS /* empty */
-#endif
+#include <sdlog/streams.h>
 
-#endif
+#include "stream_base.h"
+
+static sdlog_error_t null_write(sdlog_ostream_t* stream, uint8_t* data, size_t length);
+
+const sdlog_ostream_spec_t sdlog_ostream_null_methods = {
+    .write = null_write,
+};
+
+sdlog_error_t sdlog_ostream_init_null(sdlog_ostream_t* stream)
+{
+    return sdlog_ostream_init(stream, &sdlog_ostream_null_methods, NULL);
+}
+
+static sdlog_error_t null_write(sdlog_ostream_t* stream, uint8_t* data, size_t length)
+{
+    return SDLOG_SUCCESS;
+}

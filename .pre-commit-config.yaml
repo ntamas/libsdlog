@@ -1,27 +1,30 @@
 fail_fast: false
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+    rev: v4.6.0
     hooks:
       - id: mixed-line-ending
-        args: ["--fix=lf"]
+        args: [--fix=lf]
+        exclude: vendor
       - id: end-of-file-fixer
+        exclude: vendor
       - id: trailing-whitespace
+        exclude: vendor
       - id: check-merge-conflict
       - id: fix-byte-order-marker
   - repo: https://github.com/pre-commit/mirrors-clang-format
-    rev: v17.0.5
+    rev: v18.1.3
     hooks:
       - id: clang-format
-        exclude: "vendor"
+        exclude: "^vendor|CMakePresets.json"
   - repo: https://github.com/Lucas-C/pre-commit-hooks
-    rev: v1.5.4
+    rev: v1.5.5
     hooks:
       - id: insert-license
         files: \.(c|cpp|h|hpp)$
         args:
-        - --fuzzy-match-generates-todo
-        - --use-current-year
-        - --comment-style
-        - /*| *| */
-        exclude: "vendor"
+          - --fuzzy-match-generates-todo
+          - --use-current-year
+          - --comment-style
+          - /*| *| */
+        exclude: "^vendor|endianness.[ch]"

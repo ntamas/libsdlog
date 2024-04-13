@@ -14,8 +14,8 @@ project(libsdlog C CXX)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/etc/cmake)
 
 # Platform-dependent checks
-# include(CheckFunctionExists)
-# check_function_exists(fileno HAVE_FILENO)
+include(CheckFunctionExists)
+check_function_exists(fmemopen HAVE_FMEMOPEN)
 
 # Set C and C++ standard levels
 set(CMAKE_C_STANDARD 99)
@@ -50,7 +50,7 @@ if(LIBSDLOG_ENABLE_CODE_COVERAGE)
   setup_target_for_coverage_lcov(
     NAME coverage
     EXECUTABLE "${CMAKE_COMMAND}" "--build" "${CMAKE_BINARY_DIR}" "--target" "test"
-    EXCLUDE "/Applications/Xcode*" "/Library/Developer*" "test/*" "vendor/unity/*"
+    EXCLUDE "/Applications/Xcode*" "test/*" "vendor/unity/*"
   )
 endif()
 
@@ -66,13 +66,18 @@ if(LIBSDLOG_ENABLE_CODE_ANALYSIS)
   endif()
 endif()
 
+# Create config.h
+configure_file(src/config.h.in config.h)
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
+
 # Traverse source code
 add_subdirectory(src)
+add_subdirectory(vendor)
 
 # Enable unit test support
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
   include(CTest)
   if(BUILD_TESTING)
-    # add_subdirectory(test)
+    add_subdirectory(test)
   endif()
 endif()

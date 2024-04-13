@@ -22,18 +22,25 @@
  * SOFTWARE.
  */
 
-#ifndef SDLOG_DECLS_H
-#define SDLOG_DECLS_H
+#include <sdlog/error.h>
 
-#undef __BEGIN_DECLS
-#undef __END_DECLS
-#ifdef __cplusplus
-#define __BEGIN_DECLS \
-    extern "C" {
-#define __END_DECLS }
-#else
-#define __BEGIN_DECLS /* empty */
-#define __END_DECLS /* empty */
-#endif
+/* clang-format off */
+static char *sdlog_i_error_messages[] = {
+    "No error",                                            /* SDLOG_SUCCESS */
+    "Unspecified failure",                                 /* SDLOG_FAILURE */
+    "Not enough memory",                                   /* SDLOG_ENOMEM */
+    "Invalid value",                                       /* SDLOG_EINVAL */
+    "Limit exceeded",                                      /* SDLOG_ELIMIT */
+    "Read error",                                          /* SDLOG_EREAD */
+    "Write error",                                         /* SDLOG_EWRITE */
+    "Generic I/O error",                                   /* SDLOG_EIO */
+    "Unimplemented function call",                         /* SDLOG_UNIMPLEMENTED */
+};
+/* clang-format on */
 
-#endif
+const char* sdlog_error_to_string(int code)
+{
+    if (code >= 0 && code < (int)(sizeof(sdlog_i_error_messages) / sizeof(sdlog_i_error_messages[0])))
+        return sdlog_i_error_messages[code];
+    return sdlog_i_error_messages[SDLOG_FAILURE];
+}

@@ -17,20 +17,9 @@
  * this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <sdlog/error.h>
+#ifndef SDLOG_CONFIG_H
+#define SDLOG_CONFIG_H
 
-/* clang-format off */
-static char *sdlog_i_error_messages[] = {
-    "No error",                                            /* SDLOG_SUCCESS */
-    "Unspecified failure",                                 /* SDLOG_FAILURE */
-    "Not enough memory",                                   /* SDLOG_ENOMEM */
-    "Invalid value"                                        /* SDLOG_EINVAL */
-};
-/* clang-format on */
+#cmakedefine01 HAVE_FMEMOPEN
 
-const char* sdlog_error_to_string(int code)
-{
-    if (code >= 0 && code < (int)(sizeof(sdlog_i_error_messages) / sizeof(sdlog_i_error_messages[0])))
-        return sdlog_i_error_messages[code];
-    return sdlog_i_error_messages[SDLOG_FAILURE];
-}
+#endif

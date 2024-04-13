@@ -1,38 +1,37 @@
 /*
  * This file is part of libsdlog.
  *
- * Copyright 2023 Tamas Nepusz.
+ * Copyright 2023-2024 Tamas Nepusz.
  *
- * libsdlog is free software: you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ * of the Software, and to permit persons to whom the Software is furnished to do
+ * so, subject to the following conditions:
  *
- * libsdlog is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
- * You should have received a copy of the GNU General Public License along with
- * this program. If not, see <https://www.gnu.org/licenses/>.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 
 #ifndef SDLOG_ERROR_H
 #define SDLOG_ERROR_H
+
+#include <stddef.h>
 
 #include <sdlog/decls.h>
 
 /**
  * @file error.h
  * @brief Error codes and error handling related functions
- *
- * @def SDLOG_CHECK(func)
- * @brief Executes the given function and checks its return code.
- *
- * This macro should be used in functions that return an \ref sdlog_error_t
- * error code. The function argument is also expected to return an \ref sdlog_error_t
- * error code. Any return value from the function that is not equal to
- * \ref SDLOG_SUCCESS is returned intact to the caller.
  */
 
 __BEGIN_DECLS
@@ -46,15 +45,43 @@ typedef enum {
     SDLOG_FAILURE,        /**< Generic failure code */
     SDLOG_ENOMEM,         /**< Not enough memory */
     SDLOG_EINVAL,         /**< Invalid value */
+    SDLOG_ELIMIT,         /**< Limit exceeded */
+    SDLOG_EREAD,          /**< Read error */
+    SDLOG_EWRITE,         /**< Write error */
+    SDLOG_EIO,            /**< Generic I/O error */
+    SDLOG_UNIMPLEMENTED,  /**< Unimplemented function call */
 } sdlog_error_t;
 // clang-format on
 
+/**
+ * @def SDLOG_CHECK(func)
+ * @brief Executes the given function and checks its return code.
+ *
+ * This macro should be used in functions that return an \ref sdlog_error_t
+ * error code. The function argument is also expected to return an \ref sdlog_error_t
+ * error code. Any return value from the function that is not equal to
+ * \ref SDLOG_SUCCESS is returned intact to the caller.
+ */
 #define SDLOG_CHECK(func)                      \
     {                                          \
         sdlog_error_t __sdlog_retval = (func); \
-        if (__sdlog_retval != SB_SUCCESS) {    \
+        if (__sdlog_retval != SDLOG_SUCCESS) { \
             return __sdlog_retval;             \
         }                                      \
+    }
+
+#define SDLOG_CHECK_OOM(expr)    \
+    {                            \
+        if ((expr) == NULL) {    \
+            return SDLOG_ENOMEM; \
+        }                        \
+    }
+
+#define SDLOG_CHECK_OOM_NULL(expr) \
+    {                              \
+        if ((expr) == NULL) {      \
+            return NULL;           \
+        }                          \
     }
 
 /**

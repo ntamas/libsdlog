@@ -1,7 +1,15 @@
 add_library(
     sdlog
 
-    error.c
+    core/endianness.c
+    core/error.c
+    core/model.c
+    core/writer.c
+
+    io/base.c
+    io/buffer.c
+    io/file.c
+    io/null.c
 )
 
 set_property(TARGET sdlog PROPERTY C_STANDARD 99)

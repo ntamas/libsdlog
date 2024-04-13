@@ -22,18 +22,17 @@
  * SOFTWARE.
  */
 
-#ifndef SDLOG_DECLS_H
-#define SDLOG_DECLS_H
+#ifndef SDLOG_STREAM_BASE_H
+#define SDLOG_STREAM_BASE_H
 
-#undef __BEGIN_DECLS
-#undef __END_DECLS
-#ifdef __cplusplus
-#define __BEGIN_DECLS \
-    extern "C" {
-#define __END_DECLS }
-#else
-#define __BEGIN_DECLS /* empty */
-#define __END_DECLS /* empty */
-#endif
+#include <sdlog/decls.h>
+#include <sdlog/error.h>
+#include <sdlog/streams.h>
+
+__BEGIN_DECLS
+
+#define CONTEXT_AS(type) ((type*)stream->context)
+
+__END_DECLS
 
 #endif

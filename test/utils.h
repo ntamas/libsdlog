@@ -22,18 +22,10 @@
  * SOFTWARE.
  */
 
-#ifndef SDLOG_DECLS_H
-#define SDLOG_DECLS_H
+#ifndef UNITY_TEST_UTILS_H
+#define UNITY_TEST_UTILS_H
 
-#undef __BEGIN_DECLS
-#undef __END_DECLS
-#ifdef __cplusplus
-#define __BEGIN_DECLS \
-    extern "C" {
-#define __END_DECLS }
-#else
-#define __BEGIN_DECLS /* empty */
-#define __END_DECLS /* empty */
-#endif
+#define TEST_CHECK(func) TEST_ASSERT_EQUAL(SDLOG_SUCCESS, func)
+#define TEST_ERROR(expected_error, func) TEST_ASSERT_EQUAL(expected_error, func)
 
 #endif

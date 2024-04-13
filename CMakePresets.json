@@ -1,0 +1,46 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 21,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "default",
+      "displayName": "Development",
+      "description": "Development configuration with debugging, code coverage and sanitizers",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": {
+          "type": "string",
+          "value": "Debug"
+        },
+        "USE_SANITIZER": {
+          "type": "string",
+          "value": "Address;Undefined"
+        },
+        "LIBSDLOG_ENABLE_CODE_COVERAGE": {
+          "type": "BOOL",
+          "value": "ON"
+        }
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "build",
+      "displayName": "Build the library",
+      "configurePreset": "default",
+      "targets": ["build_tests"]
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "test",
+      "displayName": "Test the library",
+      "configurePreset": "default"
+    }
+  ]
+}
