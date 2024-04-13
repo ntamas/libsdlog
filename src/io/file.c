@@ -32,16 +32,34 @@ typedef struct {
     FILE* fp;
 } context_t;
 
-static void file_destroy(sdlog_ostream_t* stream);
+static void file_destroy_i(sdlog_istream_t* stream);
+static void file_destroy_o(sdlog_ostream_t* stream);
 static sdlog_error_t file_flush(sdlog_ostream_t* stream);
+static sdlog_error_t file_read(
+    sdlog_istream_t* stream, uint8_t* data, size_t length, size_t* read);
 static sdlog_error_t file_write(
-    sdlog_ostream_t* stream, uint8_t* data, size_t length, size_t* written);
+    sdlog_ostream_t* stream, const uint8_t* data, size_t length, size_t* written);
+
+const sdlog_istream_spec_t sdlog_istream_file_methods = {
+    .destroy = file_destroy_i,
+    .read = file_read,
+};
 
 const sdlog_ostream_spec_t sdlog_ostream_file_methods = {
-    .destroy = file_destroy,
+    .destroy = file_destroy_o,
     .flush = file_flush,
     .write = file_write,
 };
+
+sdlog_error_t sdlog_istream_init_file(sdlog_istream_t* stream, FILE* fp)
+{
+    context_t* ctx;
+
+    SDLOG_CHECK_OOM(ctx = calloc(1, sizeof(context_t)));
+    ctx->fp = fp;
+
+    return sdlog_istream_init(stream, &sdlog_istream_file_methods, ctx);
+}
 
 sdlog_error_t sdlog_ostream_init_file(sdlog_ostream_t* stream, FILE* fp)
 {
@@ -53,11 +71,35 @@ sdlog_error_t sdlog_ostream_init_file(sdlog_ostream_t* stream, FILE* fp)
     return sdlog_ostream_init(stream, &sdlog_ostream_file_methods, ctx);
 }
 
-static void file_destroy(sdlog_ostream_t* stream)
+static void file_destroy_i(sdlog_istream_t* stream)
 {
     context_t* ctx = CONTEXT_AS(context_t);
     ctx->fp = NULL;
     free(ctx);
+}
+
+static void file_destroy_o(sdlog_ostream_t* stream)
+{
+    context_t* ctx = CONTEXT_AS(context_t);
+    ctx->fp = NULL;
+    free(ctx);
+}
+
+static sdlog_error_t file_read(
+    sdlog_istream_t* stream, uint8_t* data, size_t length, size_t* read)
+{
+    context_t* ctx = CONTEXT_AS(context_t);
+    *read = fread(data, sizeof(uint8_t), length, ctx->fp);
+
+    if (*read < length) {
+        if (ferror(ctx->fp)) {
+            return SDLOG_EREAD;
+        } else if (*read == 0 && feof(ctx->fp)) {
+            return SDLOG_EOF;
+        }
+    }
+
+    return SDLOG_SUCCESS;
 }
 
 static sdlog_error_t file_flush(sdlog_ostream_t* stream)
@@ -67,9 +109,11 @@ static sdlog_error_t file_flush(sdlog_ostream_t* stream)
 }
 
 static sdlog_error_t file_write(
-    sdlog_ostream_t* stream, uint8_t* data, size_t length, size_t* written)
+    sdlog_ostream_t* stream, const uint8_t* data, size_t length, size_t* written)
 {
     context_t* ctx = CONTEXT_AS(context_t);
     *written = fwrite(data, sizeof(uint8_t), length, ctx->fp);
-    return *written > 0 ? SDLOG_SUCCESS : SDLOG_EWRITE;
+
+    /* fwrite() returns a short read count only if a write error has occurred */
+    return *written == length ? SDLOG_SUCCESS : SDLOG_EWRITE;
 }

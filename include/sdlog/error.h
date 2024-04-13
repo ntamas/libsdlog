@@ -50,6 +50,7 @@ typedef enum {
     SDLOG_EWRITE,         /**< Write error */
     SDLOG_EIO,            /**< Generic I/O error */
     SDLOG_UNIMPLEMENTED,  /**< Unimplemented function call */
+    SDLOG_EOF,            /**< End of file */
 } sdlog_error_t;
 // clang-format on
 

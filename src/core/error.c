@@ -35,6 +35,7 @@ static char *sdlog_i_error_messages[] = {
     "Write error",                                         /* SDLOG_EWRITE */
     "Generic I/O error",                                   /* SDLOG_EIO */
     "Unimplemented function call",                         /* SDLOG_UNIMPLEMENTED */
+    "End of file",                                         /* SDLOG_EOF */
 };
 /* clang-format on */
 

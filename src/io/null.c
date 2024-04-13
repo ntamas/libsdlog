@@ -28,20 +28,37 @@
 
 #include "stream_base.h"
 
+static sdlog_error_t null_read(
+    sdlog_istream_t* stream, uint8_t* data, size_t length, size_t* read);
 static sdlog_error_t null_write(
-    sdlog_ostream_t* stream, uint8_t* data, size_t length, size_t* written);
+    sdlog_ostream_t* stream, const uint8_t* data, size_t length, size_t* written);
+
+const sdlog_istream_spec_t sdlog_istream_null_methods = {
+    .read = null_read,
+};
 
 const sdlog_ostream_spec_t sdlog_ostream_null_methods = {
     .write = null_write,
 };
+
+sdlog_error_t sdlog_istream_init_null(sdlog_istream_t* stream)
+{
+    return sdlog_istream_init(stream, &sdlog_istream_null_methods, NULL);
+}
 
 sdlog_error_t sdlog_ostream_init_null(sdlog_ostream_t* stream)
 {
     return sdlog_ostream_init(stream, &sdlog_ostream_null_methods, NULL);
 }
 
+static sdlog_error_t null_read(
+    sdlog_istream_t* stream, uint8_t* data, size_t length, size_t* read)
+{
+    return SDLOG_EOF;
+}
+
 static sdlog_error_t null_write(
-    sdlog_ostream_t* stream, uint8_t* data, size_t length, size_t* written)
+    sdlog_ostream_t* stream, const uint8_t* data, size_t length, size_t* written)
 {
     *written = length;
     return SDLOG_SUCCESS;

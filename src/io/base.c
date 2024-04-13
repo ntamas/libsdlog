@@ -27,6 +27,69 @@
 
 #include <sdlog/streams.h>
 
+sdlog_error_t sdlog_istream_init(
+    sdlog_istream_t* stream, const sdlog_istream_spec_t* spec,
+    void* ctx)
+{
+    assert(spec);
+
+    memset(stream, 0, sizeof(sdlog_istream_t));
+    stream->methods = spec;
+    stream->context = ctx;
+
+    return SDLOG_SUCCESS;
+}
+
+void sdlog_istream_destroy(sdlog_istream_t* stream)
+{
+    if (stream->methods->destroy) {
+        stream->methods->destroy(stream);
+    }
+
+    memset(stream, 0, sizeof(sdlog_istream_t));
+}
+
+sdlog_error_t sdlog_istream_read(
+    sdlog_istream_t* stream, uint8_t* data, size_t length, size_t* bytes_read)
+{
+    size_t dummy;
+
+    if (length == 0) {
+        if (bytes_read) {
+            *bytes_read = 0;
+        }
+        return SDLOG_SUCCESS;
+    }
+
+    return stream->methods->read
+        ? stream->methods->read(stream, data, length, bytes_read ? bytes_read : &dummy)
+        : SDLOG_UNIMPLEMENTED;
+}
+
+sdlog_error_t sdlog_istream_read_exactly(
+    sdlog_istream_t* stream, uint8_t* data, size_t length)
+{
+    uint8_t* buf = data;
+    size_t read;
+
+    while (length > 0) {
+        SDLOG_CHECK(sdlog_istream_read(stream, buf, length, &read));
+        if (read <= length) {
+            length -= read;
+            buf += read;
+        } else {
+            /* Should not happen */
+            /* LCOV_EXCL_START */
+            return SDLOG_EREAD;
+            /* LCOV_EXCL_STOP */
+        }
+    }
+
+    return SDLOG_SUCCESS;
+}
+
+/* ************************************************************************** */
+
 sdlog_error_t sdlog_ostream_init(
     sdlog_ostream_t* stream, const sdlog_ostream_spec_t* spec,
     void* ctx)
@@ -71,7 +134,7 @@ sdlog_error_t sdlog_ostream_flush(sdlog_ostream_t* stream)
 }
 
 sdlog_error_t sdlog_ostream_write(
-    sdlog_ostream_t* stream, uint8_t* data, size_t length, size_t* bytes_written)
+    sdlog_ostream_t* stream, const uint8_t* data, size_t length, size_t* bytes_written)
 {
     size_t dummy;
 
@@ -88,9 +151,9 @@ sdlog_error_t sdlog_ostream_write(
 }
 
 sdlog_error_t sdlog_ostream_write_all(
-    sdlog_ostream_t* stream, uint8_t* data, size_t length)
+    sdlog_ostream_t* stream, const uint8_t* data, size_t length)
 {
-    uint8_t* buf = data;
+    const uint8_t* buf = data;
     size_t written;
 
     while (length > 0) {
