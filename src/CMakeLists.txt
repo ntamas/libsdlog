@@ -4,6 +4,7 @@ add_library(
     core/endianness.c
     core/error.c
     core/model.c
+    core/parser.c
     core/writer.c
 
     io/base.c
