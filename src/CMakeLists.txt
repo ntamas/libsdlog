@@ -2,6 +2,7 @@ add_library(
     sdlog
 
     core/endianness.c
+    core/encoder.c
     core/error.c
     core/model.c
     core/parser.c

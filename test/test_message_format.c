@@ -22,6 +22,7 @@
  * SOFTWARE.
  */
 
+#include <sdlog/encoder.h>
 #include <sdlog/model.h>
 #include <stdlib.h>
 
@@ -127,6 +128,38 @@ void test_invalid_message_column_type(void)
     sdlog_message_format_destroy(&format);
 }
 
+void test_message_encoding(void)
+{
+    sdlog_message_format_t format;
+    uint8_t buf[SDLOG_MAX_MESSAGE_LENGTH];
+    size_t written;
+
+    TEST_CHECK(sdlog_message_format_init(&format, SDLOG_ID_FMT, "FMT"));
+    TEST_CHECK(sdlog_message_format_add_column(&format, "Type", 'B', '-'));
+    TEST_CHECK(sdlog_message_format_add_column(&format, "Length", 'B', '-'));
+    TEST_CHECK(sdlog_message_format_add_column(&format, "Name", 'n', '-'));
+    TEST_CHECK(sdlog_message_format_add_column(&format, "Format", 'N', '-'));
+    TEST_CHECK(sdlog_message_format_add_column(&format, "Columns", 'Z', '-'));
+
+    TEST_CHECK(sdlog_message_format_encode(&format, buf, &written, 42, 8, "FOO", "Id", "B"));
+    TEST_ASSERT_EQUAL(sdlog_message_format_get_size(&format) + 3, written);
+
+    sdlog_message_format_destroy(&format);
+}
+
+void test_message_encoding_invalid_format_code(void)
+{
+    sdlog_message_format_t format;
+    uint8_t buf[SDLOG_MAX_MESSAGE_LENGTH];
+
+    TEST_CHECK(sdlog_message_format_init(&format, SDLOG_ID_FMT, "FMT"));
+    TEST_CHECK(sdlog_message_format_add_column(&format, "Type", 'a', '-'));
+    TEST_ERROR(
+        sdlog_message_format_encode(&format, buf, NULL, 42),
+        SDLOG_UNIMPLEMENTED);
+    sdlog_message_format_destroy(&format);
+}
+
 int main(int argc, char* argv[])
 {
     UNITY_BEGIN();
@@ -136,6 +169,8 @@ int main(int argc, char* argv[])
     RUN_TEST(test_invalid_message_column_type);
     RUN_TEST(test_create_message_format_with_columns);
     RUN_TEST(test_create_message_format_with_columns_convenience);
+    RUN_TEST(test_message_encoding);
+    RUN_TEST(test_message_encoding_invalid_format_code);
 
     return UNITY_END();
 }

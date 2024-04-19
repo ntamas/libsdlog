@@ -45,7 +45,7 @@ typedef struct {
  * @param parser  the parser to initialize
  * @param stream  the stream to read the log from
  */
-sdlog_error_t sdlog_writer_init(sdlog_parser_t* parser, sdlog_istream_t* stream);
+sdlog_error_t sdlog_parser_init(sdlog_parser_t* parser, sdlog_istream_t* stream);
 
 /**
  * @brief Destroys the log parser.

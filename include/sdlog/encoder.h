@@ -22,15 +22,21 @@
  * SOFTWARE.
  */
 
-#ifndef SDLOG_SDLOG_H
-#define SDLOG_SDLOG_H
+#ifndef SDLOG_ENCODER_H
+#define SDLOG_ENCODER_H
 
-#include <sdlog/encoder.h>
-#include <sdlog/error.h>
+#include <stdarg.h>
+
+#include <sdlog/decls.h>
 #include <sdlog/model.h>
-#include <sdlog/parser.h>
-#include <sdlog/streams.h>
-#include <sdlog/version.h>
-#include <sdlog/writer.h>
+
+__BEGIN_DECLS
+
+sdlog_error_t sdlog_message_format_encode(
+    const sdlog_message_format_t* format, uint8_t* buf, size_t* written, ...);
+sdlog_error_t sdlog_message_format_encode_va(
+    const sdlog_message_format_t* format, uint8_t* buf, size_t* written, va_list args);
+
+__END_DECLS
 
 #endif
