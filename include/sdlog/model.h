@@ -132,7 +132,7 @@ typedef struct {
  * @param type    the human-readable short type code of the message format
  */
 sdlog_error_t sdlog_message_format_init(
-    sdlog_message_format_t* format, uint8_t id, char* type);
+    sdlog_message_format_t* format, uint8_t id, const char* type);
 
 /**
  * @brief Destroys a message format object.

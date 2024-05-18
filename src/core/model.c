@@ -56,7 +56,7 @@ uint8_t sdlog_message_column_format_get_size(const sdlog_message_column_format_t
 /* ************************************************************************** */
 
 sdlog_error_t sdlog_message_format_init(
-    sdlog_message_format_t* format, uint8_t id, char* type)
+    sdlog_message_format_t* format, uint8_t id, const char* type)
 {
     if (strlen(type) > SDLOG_MAX_MESSAGE_TYPE_LENGTH) {
         return SDLOG_EINVAL;
