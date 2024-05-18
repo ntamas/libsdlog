@@ -86,6 +86,17 @@ sdlog_error_t sdlog_writer_write(sdlog_writer_t* writer, const sdlog_message_for
     va_list args;
     sdlog_error_t retval;
 
+    va_start(args, format);
+    retval = sdlog_writer_write_va(writer, format, args);
+    va_end(args);
+
+    return retval;
+}
+
+sdlog_error_t sdlog_writer_write_va(sdlog_writer_t* writer, const sdlog_message_format_t* format, va_list args)
+{
+    sdlog_error_t retval;
+
     /* Ensures that we have a running writer session */
     SDLOG_CHECK(ensure_session_started(writer));
 
@@ -100,9 +111,7 @@ sdlog_error_t sdlog_writer_write(sdlog_writer_t* writer, const sdlog_message_for
     }
 
     /* Write the record itself */
-    va_start(args, format);
     retval = write_record_va(writer, format, args);
-    va_end(args);
 
 cleanup:
     return retval;

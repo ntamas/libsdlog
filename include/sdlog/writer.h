@@ -93,6 +93,18 @@ sdlog_error_t sdlog_writer_flush(sdlog_writer_t* writer);
  */
 sdlog_error_t sdlog_writer_write(sdlog_writer_t* writer, const sdlog_message_format_t* format, ...);
 
+/**
+ * @brief Writes the given values to a log according to the given log format.
+ *
+ * This is an alternative version of \ref sdlog_writer_write() for variadic
+ * argument lists.
+ *
+ * @param writer  the writer to use
+ * @param format  the message format
+ * @param args    the values to write as a variadic argument list
+ */
+sdlog_error_t sdlog_writer_write_va(sdlog_writer_t* writer, const sdlog_message_format_t* format, va_list args);
+
 __END_DECLS
 
 #endif
