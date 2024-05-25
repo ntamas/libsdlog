@@ -195,6 +195,9 @@ char* sdlog_message_format_get_format_string(const sdlog_message_format_t* forma
 /**
  * @brief Calculates the total size of a log record described by this format object.
  *
+ * The returned size does not include the sync bytes and the format tag that are
+ * printed in front of the log record when writing to a log stream.
+ *
  * @param format  the format object to query
  * @return  the total size of a log record with this format, in bytes
  */

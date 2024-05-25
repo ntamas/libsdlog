@@ -98,6 +98,10 @@ sdlog_error_t sdlog_writer_write_encoded(
     sdlog_writer_t* writer, const sdlog_message_format_t* format,
     const uint8_t* message, size_t length)
 {
+    if (length == 0) {
+        length = sdlog_message_format_get_size(format) + 3;
+    }
+
     SDLOG_CHECK(ensure_session_started(writer));
     SDLOG_CHECK(write_format_if_needed(writer, format));
     return sdlog_ostream_write_all(writer->stream, message, length);

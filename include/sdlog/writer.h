@@ -102,7 +102,8 @@ sdlog_error_t sdlog_writer_write(
  *        by the writer to decide whether it sees this format for the first time
  *        or not, and to know the length of the message
  * @param message the formatted message
- * @param length  the length of the formatted message
+ * @param length  the length of the formatted message; zero means to query it
+ *        from the format object
  */
 sdlog_error_t sdlog_writer_write_encoded(
     sdlog_writer_t* writer, const sdlog_message_format_t* format,
