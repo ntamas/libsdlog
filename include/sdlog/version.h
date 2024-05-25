@@ -40,7 +40,7 @@
  * \def SDLOG_VERSION_MINOR
  * Minor version number of \c libsdlog
  */
-#define SDLOG_VERSION_MINOR 1
+#define SDLOG_VERSION_MINOR 2
 
 /**
  * \def SDLOG_VERSION_PATCH
