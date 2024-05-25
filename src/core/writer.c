@@ -31,6 +31,7 @@
 
 static sdlog_error_t ensure_session_started(sdlog_writer_t* writer);
 static sdlog_error_t write_format(sdlog_writer_t* writer, const sdlog_message_format_t* format);
+static sdlog_error_t write_format_if_needed(sdlog_writer_t* writer, const sdlog_message_format_t* format);
 static sdlog_error_t write_record(sdlog_writer_t* writer, const sdlog_message_format_t* format, ...);
 static sdlog_error_t write_record_va(sdlog_writer_t* writer, const sdlog_message_format_t* format, va_list args);
 
@@ -93,28 +94,20 @@ sdlog_error_t sdlog_writer_write(sdlog_writer_t* writer, const sdlog_message_for
     return retval;
 }
 
+sdlog_error_t sdlog_writer_write_encoded(
+    sdlog_writer_t* writer, const sdlog_message_format_t* format,
+    const uint8_t* message, size_t length)
+{
+    SDLOG_CHECK(ensure_session_started(writer));
+    SDLOG_CHECK(write_format_if_needed(writer, format));
+    return sdlog_ostream_write_all(writer->stream, message, length);
+}
+
 sdlog_error_t sdlog_writer_write_va(sdlog_writer_t* writer, const sdlog_message_format_t* format, va_list args)
 {
-    sdlog_error_t retval;
-
-    /* Ensures that we have a running writer session */
     SDLOG_CHECK(ensure_session_started(writer));
-
-    /* Write an FMT record if this message format is a new one or its definition
-     * changed since the last time we wrote an FMT record */
-    if (writer->formats[format->id] != format) {
-        retval = write_format(writer, format);
-        if (retval != SDLOG_SUCCESS) {
-            goto cleanup;
-        }
-        writer->formats[format->id] = (sdlog_message_format_t*)format;
-    }
-
-    /* Write the record itself */
-    retval = write_record_va(writer, format, args);
-
-cleanup:
-    return retval;
+    SDLOG_CHECK(write_format_if_needed(writer, format));
+    return write_record_va(writer, format, args);
 }
 
 static sdlog_error_t write_format(sdlog_writer_t* writer, const sdlog_message_format_t* format)
@@ -146,6 +139,22 @@ static sdlog_error_t write_format(sdlog_writer_t* writer, const sdlog_message_fo
 cleanup:
     free(column_names);
     free(format_str);
+
+    return retval;
+}
+
+static sdlog_error_t write_format_if_needed(sdlog_writer_t* writer, const sdlog_message_format_t* format)
+{
+    sdlog_error_t retval;
+
+    /* Write an FMT record if this message format is a new one or its definition
+     * changed since the last time we wrote an FMT record */
+    if (writer->formats[format->id] != format) {
+        retval = write_format(writer, format);
+        writer->formats[format->id] = (sdlog_message_format_t*)format;
+    } else {
+        retval = SDLOG_SUCCESS;
+    }
 
     return retval;
 }

@@ -91,7 +91,22 @@ sdlog_error_t sdlog_writer_flush(sdlog_writer_t* writer);
  * @param format  the message format
  * @param ... the values to write
  */
-sdlog_error_t sdlog_writer_write(sdlog_writer_t* writer, const sdlog_message_format_t* format, ...);
+sdlog_error_t sdlog_writer_write(
+    sdlog_writer_t* writer, const sdlog_message_format_t* format, ...);
+
+/**
+ * @brief Writes the given formatted message to a log.
+ *
+ * @param writer  the writer to use
+ * @param format  the message format that was used to encode the message. Needed
+ *        by the writer to decide whether it sees this format for the first time
+ *        or not, and to know the length of the message
+ * @param message the formatted message
+ * @param length  the length of the formatted message
+ */
+sdlog_error_t sdlog_writer_write_encoded(
+    sdlog_writer_t* writer, const sdlog_message_format_t* format,
+    const uint8_t* message, size_t length);
 
 /**
  * @brief Writes the given values to a log according to the given log format.
@@ -103,7 +118,8 @@ sdlog_error_t sdlog_writer_write(sdlog_writer_t* writer, const sdlog_message_for
  * @param format  the message format
  * @param args    the values to write as a variadic argument list
  */
-sdlog_error_t sdlog_writer_write_va(sdlog_writer_t* writer, const sdlog_message_format_t* format, va_list args);
+sdlog_error_t sdlog_writer_write_va(
+    sdlog_writer_t* writer, const sdlog_message_format_t* format, va_list args);
 
 __END_DECLS
 

@@ -22,6 +22,7 @@
  * SOFTWARE.
  */
 
+#include <sdlog/encoder.h>
 #include <sdlog/writer.h>
 #include <stdio.h>
 
@@ -127,12 +128,67 @@ void test_writer_formats(void)
     sdlog_ostream_destroy(&stream);
 }
 
+void test_writer_write_encoded(void)
+{
+    sdlog_writer_t writer;
+    sdlog_ostream_t stream;
+    sdlog_message_format_t int_format;
+    uint8_t encoded[128];
+    size_t length;
+    const uint8_t* buf;
+    /* clang-format off */
+    uint8_t expected[] = {
+        0xA3, 0x95, 0x80, 0x01, 30,
+        'I', 'N', 'T', 0,
+        'b', 'B', 'h', 'H', 'i', 'I', 'q', 'Q', 0, 0, 0, 0, 0, 0, 0, 0,
+        's', '8', ',', 'u', '8', ',', 's', '1', '6', ',', 'u', '1', '6', ',',
+        's', '3', '2', ',', 'u', '3', '2', ',', 's', '6', '4', ',', 'u', '6', '4',
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0,
+
+        0xA3, 0x95, 0x01, 0xfe, 0xef, 0xfe, 0xca, 0xef, 0xbe,
+        0xfe, 0xca, 0xad, 0x0b, 0xef, 0xbe, 0xad, 0xde,
+        0xfe, 0xca, 0xad, 0x0b, 0x00, 0x00, 0x00, 0x00,
+        0xef, 0xbe, 0xad, 0xde, 0x00, 0x00, 0x00, 0x00,
+    };
+    /* clang-format on */
+    size_t size;
+
+    TEST_CHECK(sdlog_ostream_init_buffer(&stream));
+
+    TEST_CHECK(sdlog_message_format_init(&int_format, 1, "INT"));
+    TEST_CHECK(sdlog_message_format_add_columns(
+        &int_format,
+        "s8,u8,s16,u16,s32,u32,s64,u64",
+        "bBhHiIqQ",
+        "--------"));
+
+    TEST_CHECK(sdlog_message_format_encode(&int_format, encoded, &length,
+        0x0badcafe, 0xdeadbeef, 0x0badcafe, 0xdeadbeef,
+        0x0badcafe, 0xdeadbeef, 0x0badcafeLL, 0xdeadbeefULL));
+
+    TEST_CHECK(sdlog_writer_init(&writer, &stream));
+    TEST_CHECK(sdlog_writer_write_encoded(&writer, &int_format, encoded, length));
+    sdlog_writer_destroy(&writer);
+
+    sdlog_message_format_destroy(&int_format);
+
+    buf = sdlog_ostream_buffer_get(&stream, &size);
+    TEST_ASSERT_NOT_NULL(buf);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(expected, buf, sizeof(expected));
+    TEST_ASSERT_EQUAL(sizeof(expected), size);
+
+    sdlog_ostream_destroy(&stream);
+}
+
 int main(int argc, char* argv[])
 {
     UNITY_BEGIN();
 
     RUN_TEST(test_writer_init_destroy);
     RUN_TEST(test_writer_formats);
+    RUN_TEST(test_writer_write_encoded);
 
     return UNITY_END();
 }
