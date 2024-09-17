@@ -23,6 +23,7 @@
  */
 
 #include <sdlog/encoder.h>
+#include <sdlog/memory.h>
 #include <sdlog/model.h>
 #include <stdlib.h>
 
@@ -62,12 +63,12 @@ void check_fmt_column(const sdlog_message_format_t* format)
     fmt = sdlog_message_format_get_format_string(format);
     TEST_ASSERT_NOT_NULL(fmt);
     TEST_ASSERT_EQUAL_STRING("BBnNZ", fmt);
-    free(fmt);
+    sdlog_free(fmt);
 
     fmt = sdlog_message_format_get_column_names(format, ", ");
     TEST_ASSERT_NOT_NULL(fmt);
     TEST_ASSERT_EQUAL_STRING("Type, Length, Name, Format, Columns", fmt);
-    free(fmt);
+    sdlog_free(fmt);
 
     TEST_ASSERT_EQUAL(86, sdlog_message_format_get_size(format));
 }

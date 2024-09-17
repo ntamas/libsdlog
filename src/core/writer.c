@@ -27,6 +27,7 @@
 #include <string.h>
 
 #include <sdlog/encoder.h>
+#include <sdlog/memory.h>
 #include <sdlog/writer.h>
 
 static sdlog_error_t ensure_session_started(sdlog_writer_t* writer);
@@ -49,7 +50,7 @@ sdlog_error_t sdlog_writer_init(sdlog_writer_t* writer, sdlog_ostream_t* stream)
     writer->stream = stream;
     writer->fmt_message_format = fmt_format;
 
-    SDLOG_CHECK_OOM(writer->buf = calloc(SDLOG_MAX_MESSAGE_LENGTH, sizeof(uint8_t)));
+    SDLOG_CHECK_OOM(writer->buf = sdlog_malloc(SDLOG_MAX_MESSAGE_LENGTH * sizeof(uint8_t)));
 
     return SDLOG_SUCCESS;
 }
@@ -61,7 +62,7 @@ void sdlog_writer_destroy(sdlog_writer_t* writer)
     }
 
     sdlog_message_format_destroy(&writer->fmt_message_format);
-    free(writer->buf);
+    sdlog_free(writer->buf);
 
     memset(writer, 0, sizeof(sdlog_writer_t));
 }
@@ -141,8 +142,8 @@ static sdlog_error_t write_format(sdlog_writer_t* writer, const sdlog_message_fo
         /* columns = */ column_names);
 
 cleanup:
-    free(column_names);
-    free(format_str);
+    sdlog_free(column_names);
+    sdlog_free(format_str);
 
     return retval;
 }

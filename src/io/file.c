@@ -24,6 +24,7 @@
 
 #include <stdlib.h>
 
+#include <sdlog/memory.h>
 #include <sdlog/streams.h>
 
 #include "stream_base.h"
@@ -55,7 +56,7 @@ sdlog_error_t sdlog_istream_init_file(sdlog_istream_t* stream, FILE* fp)
 {
     context_t* ctx;
 
-    SDLOG_CHECK_OOM(ctx = calloc(1, sizeof(context_t)));
+    SDLOG_CHECK_OOM(ctx = sdlog_malloc(sizeof(context_t)));
     ctx->fp = fp;
 
     return sdlog_istream_init(stream, &sdlog_istream_file_methods, ctx);
@@ -65,7 +66,7 @@ sdlog_error_t sdlog_ostream_init_file(sdlog_ostream_t* stream, FILE* fp)
 {
     context_t* ctx;
 
-    SDLOG_CHECK_OOM(ctx = calloc(1, sizeof(context_t)));
+    SDLOG_CHECK_OOM(ctx = sdlog_malloc(sizeof(context_t)));
     ctx->fp = fp;
 
     return sdlog_ostream_init(stream, &sdlog_ostream_file_methods, ctx);
@@ -75,14 +76,14 @@ static void file_destroy_i(sdlog_istream_t* stream)
 {
     context_t* ctx = CONTEXT_AS(context_t);
     ctx->fp = NULL;
-    free(ctx);
+    sdlog_free(ctx);
 }
 
 static void file_destroy_o(sdlog_ostream_t* stream)
 {
     context_t* ctx = CONTEXT_AS(context_t);
     ctx->fp = NULL;
-    free(ctx);
+    sdlog_free(ctx);
 }
 
 static sdlog_error_t file_read(

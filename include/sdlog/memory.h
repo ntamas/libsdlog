@@ -22,16 +22,22 @@
  * SOFTWARE.
  */
 
-#ifndef SDLOG_SDLOG_H
-#define SDLOG_SDLOG_H
+#ifndef SDLOG_MEMORY_H
+#define SDLOG_MEMORY_H
 
-#include <sdlog/encoder.h>
-#include <sdlog/error.h>
-#include <sdlog/memory.h>
-#include <sdlog/model.h>
-#include <sdlog/parser.h>
-#include <sdlog/streams.h>
-#include <sdlog/version.h>
-#include <sdlog/writer.h>
+#include <stdlib.h>
+
+/**
+ * @file memory.h
+ * @brief Function for allocating and deallocating memory
+ */
+
+__BEGIN_DECLS
+
+void* sdlog_malloc(size_t size);
+void* sdlog_realloc(void* p, size_t size);
+void sdlog_free(void* p);
+
+__END_DECLS
 
 #endif

@@ -22,16 +22,31 @@
  * SOFTWARE.
  */
 
-#ifndef SDLOG_SDLOG_H
-#define SDLOG_SDLOG_H
+#include "sdlog/memory.h"
 
-#include <sdlog/encoder.h>
-#include <sdlog/error.h>
-#include <sdlog/memory.h>
-#include <sdlog/model.h>
-#include <sdlog/parser.h>
-#include <sdlog/streams.h>
-#include <sdlog/version.h>
-#include <sdlog/writer.h>
-
+inline void* sdlog_malloc(size_t size)
+{
+#if defined(SDLOG_MALLOC)
+    return SDLOG_MALLOC(size);
+#else
+    return malloc(size);
 #endif
+}
+
+inline void* sdlog_realloc(void* p, size_t size)
+{
+#if defined(SDLOG_REALLOC)
+    return SDLOG_REALLOC(p, size);
+#else
+    return realloc(p, size);
+#endif
+}
+
+inline void sdlog_free(void* p)
+{
+#if defined(SDLOG_FREE)
+    SDLOG_FREE(p);
+#else
+    free(p);
+#endif
+}

@@ -28,6 +28,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <sdlog/memory.h>
 #include <sdlog/model.h>
 
 static uint8_t get_size_of_column_type(char type);
@@ -35,7 +36,11 @@ static uint8_t get_size_of_column_type(char type);
 sdlog_error_t sdlog_message_column_format_init(
     sdlog_message_column_format_t* format, const char* name, char type, char unit)
 {
-    SDLOG_CHECK_OOM(format->name = strdup(name));
+    size_t length = strlen(name);
+
+    SDLOG_CHECK_OOM(format->name = sdlog_malloc(length + 1));
+    memcpy(format->name, name, length + 1);
+
     format->type = type;
     format->unit = unit;
 
@@ -44,7 +49,7 @@ sdlog_error_t sdlog_message_column_format_init(
 
 void sdlog_message_column_format_destroy(sdlog_message_column_format_t* format)
 {
-    free(format->name);
+    sdlog_free(format->name);
     memset(format, 0, sizeof(sdlog_message_column_format_t));
 }
 
@@ -64,7 +69,7 @@ sdlog_error_t sdlog_message_format_init(
 
     memset(format, 0, sizeof(sdlog_message_format_t));
 
-    SDLOG_CHECK_OOM(format->columns = calloc(4, sizeof(sdlog_message_column_format_t)));
+    SDLOG_CHECK_OOM(format->columns = sdlog_malloc(4 * sizeof(sdlog_message_column_format_t)));
     format->num_alloc_columns = 4;
     format->num_columns = 0;
 
@@ -82,7 +87,7 @@ void sdlog_message_format_destroy(sdlog_message_format_t* format)
         for (i = 0; i < format->num_columns; i++) {
             sdlog_message_column_format_destroy(&format->columns[i]);
         }
-        free(format->columns);
+        sdlog_free(format->columns);
     }
 
     memset(format, 0, sizeof(sdlog_message_format_t));
@@ -121,7 +126,7 @@ char* sdlog_message_format_get_column_names(
     }
     bytes_needed += sep_length * (num_columns - 1) + 1;
 
-    SDLOG_CHECK_OOM_NULL(result = calloc(bytes_needed, sizeof(char)));
+    SDLOG_CHECK_OOM_NULL(result = sdlog_malloc(bytes_needed * sizeof(char)));
 
     for (i = 0, write_ptr = result; i < num_columns; i++) {
         if (i > 0) {
@@ -134,6 +139,8 @@ char* sdlog_message_format_get_column_names(
         write_ptr += length;
     }
 
+    *write_ptr = 0;
+
     return result;
 }
 
@@ -143,11 +150,12 @@ char* sdlog_message_format_get_format_string(const sdlog_message_format_t* forma
     size_t i;
     char* result;
 
-    SDLOG_CHECK_OOM_NULL(result = calloc(num_columns + 1, sizeof(char)));
+    SDLOG_CHECK_OOM_NULL(result = sdlog_malloc((num_columns + 1) * sizeof(char)));
 
     for (i = 0; i < num_columns; i++) {
         result[i] = format->columns[i].type;
     }
+    result[num_columns] = 0;
 
     return result;
 }
@@ -189,7 +197,7 @@ sdlog_error_t sdlog_message_format_add_column(
         }
 
         SDLOG_CHECK_OOM(
-            new_columns = realloc(format->columns, new_size * sizeof(sdlog_message_column_format_t)));
+            new_columns = sdlog_realloc(format->columns, new_size * sizeof(sdlog_message_column_format_t)));
         format->columns = new_columns;
         format->num_alloc_columns = new_size;
     }
@@ -210,6 +218,7 @@ sdlog_error_t sdlog_message_format_add_columns(
     const char* units)
 {
     char* names_dup = NULL;
+    size_t length;
     size_t num_columns = strlen(types);
     sdlog_error_t result = SDLOG_SUCCESS;
 
@@ -218,7 +227,10 @@ sdlog_error_t sdlog_message_format_add_columns(
         return SDLOG_ELIMIT;
     }
 
-    SDLOG_CHECK_OOM(names_dup = strdup(names));
+    length = strlen(names);
+    SDLOG_CHECK_OOM(names_dup = sdlog_malloc(length + 1));
+    memcpy(names_dup, names, length + 1);
+
     char* name_ptr = names_dup;
     char* name_end;
     const char* type_ptr = types;
@@ -253,7 +265,7 @@ sdlog_error_t sdlog_message_format_add_columns(
     }
 
 cleanup:
-    free(names_dup);
+    sdlog_free(names_dup);
 
     return result;
 }

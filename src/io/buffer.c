@@ -26,6 +26,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <sdlog/memory.h>
 #include <sdlog/streams.h>
 
 #include "stream_base.h"
@@ -66,7 +67,7 @@ sdlog_error_t sdlog_istream_init_buffer(
 {
     istream_context_t* ctx;
 
-    SDLOG_CHECK_OOM(ctx = calloc(1, sizeof(istream_context_t)));
+    SDLOG_CHECK_OOM(ctx = sdlog_malloc(sizeof(istream_context_t)));
     memset(ctx, 0, sizeof(istream_context_t));
 
     ctx->data = ctx->read_ptr = data;
@@ -79,10 +80,10 @@ sdlog_error_t sdlog_ostream_init_buffer(sdlog_ostream_t* stream)
 {
     ostream_context_t* ctx;
 
-    SDLOG_CHECK_OOM(ctx = calloc(1, sizeof(ostream_context_t)));
+    SDLOG_CHECK_OOM(ctx = sdlog_malloc(sizeof(ostream_context_t)));
     memset(ctx, 0, sizeof(ostream_context_t));
 
-    SDLOG_CHECK_OOM(ctx->data = calloc(16, sizeof(uint8_t)));
+    SDLOG_CHECK_OOM(ctx->data = sdlog_malloc(16 * sizeof(uint8_t)));
     ctx->end = ctx->data;
     ctx->alloc_end = ctx->data + 16;
 
@@ -105,15 +106,15 @@ static void buffer_destroy_i(sdlog_istream_t* stream)
 {
     istream_context_t* ctx = CONTEXT_AS(istream_context_t);
     memset(ctx, 0, sizeof(istream_context_t));
-    free(ctx);
+    sdlog_free(ctx);
 }
 
 static void buffer_destroy_o(sdlog_ostream_t* stream)
 {
     ostream_context_t* ctx = CONTEXT_AS(ostream_context_t);
-    free(ctx->data);
+    sdlog_free(ctx->data);
     memset(ctx, 0, sizeof(ostream_context_t));
-    free(ctx);
+    sdlog_free(ctx);
 }
 
 static sdlog_error_t buffer_read(
@@ -172,7 +173,7 @@ static sdlog_error_t buffer_grow(sdlog_ostream_t* stream)
     uint8_t* new_data;
 
     alloc_length *= 2;
-    SDLOG_CHECK_OOM(new_data = realloc(ctx->data, alloc_length));
+    SDLOG_CHECK_OOM(new_data = sdlog_realloc(ctx->data, alloc_length));
 
     ctx->data = new_data;
     ctx->end = ctx->data + length;
