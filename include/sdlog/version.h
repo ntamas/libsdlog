@@ -46,7 +46,7 @@
  * \def SDLOG_VERSION_PATCH
  * Patch level of \c libsdlog
  */
-#define SDLOG_VERSION_PATCH 1
+#define SDLOG_VERSION_PATCH 2
 
 /**
  * \def SDLOG_VERSION
