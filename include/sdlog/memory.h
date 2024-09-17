@@ -25,7 +25,17 @@
 #ifndef SDLOG_MEMORY_H
 #define SDLOG_MEMORY_H
 
-#include <stdlib.h>
+// You can add your own declarations to this file by defining
+// SDLOG_MEMORY_INC as a header file to include (-DSDLOG_MEMORY_INC=something.h).
+#ifdef SDLOG_MEMORY_INC
+#define SDLOG_STRINGIZE(x) SDLOG_STRINGIZE2(x)
+#define SDLOG_STRINGIZE2(x) #x
+#include SDLOG_STRINGIZE(SDLOG_MEMORY_INC)
+#endif
+
+#include <stddef.h>
+
+#include <sdlog/decls.h>
 
 /**
  * @file memory.h

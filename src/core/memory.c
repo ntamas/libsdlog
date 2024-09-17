@@ -24,6 +24,14 @@
 
 #include "sdlog/memory.h"
 
+#if !defined(SDLOG_MALLOC) || !defined(SDLOG_FREE)
+#include <stdlib.h>
+#endif
+
+#if !defined(SDLOG_REALLOC) && (defined(SDLOG_MALLOC) || defined(SDLOG_FREE))
+#include <string.h>
+#endif
+
 inline void* sdlog_malloc(size_t size)
 {
 #if defined(SDLOG_MALLOC)
