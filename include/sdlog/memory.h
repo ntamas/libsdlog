@@ -35,7 +35,7 @@
 __BEGIN_DECLS
 
 void* sdlog_malloc(size_t size);
-void* sdlog_realloc(void* p, size_t size);
+void* sdlog_realloc(void* p, size_t old_size, size_t new_size);
 void sdlog_free(void* p);
 
 __END_DECLS

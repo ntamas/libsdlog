@@ -33,12 +33,22 @@ inline void* sdlog_malloc(size_t size)
 #endif
 }
 
-inline void* sdlog_realloc(void* p, size_t size)
+inline void* sdlog_realloc(void* p, size_t old_size, size_t new_size)
 {
 #if defined(SDLOG_REALLOC)
-    return SDLOG_REALLOC(p, size);
+    return SDLOG_REALLOC(p, new_size);
+#elif defined(SDLOG_MALLOC) || defined(SDLOG_FREE)
+    /* Inefficient implementation using malloc() and free(), for FreeRTOS and
+     * alike that do not provide a custom realloc() but provide malloc() and
+     * free() */
+    void* new_p = sdlog_malloc(new_size);
+    if (new_p) {
+        memcpy(new_p, p, old_size);
+        sdlog_free(p);
+    }
+    return new_p;
 #else
-    return realloc(p, size);
+    return realloc(p, new_size);
 #endif
 }
 

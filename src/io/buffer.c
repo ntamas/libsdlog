@@ -170,14 +170,15 @@ static sdlog_error_t buffer_grow(sdlog_ostream_t* stream)
     ostream_context_t* ctx = CONTEXT_AS(ostream_context_t);
     size_t length = ctx->end - ctx->data;
     size_t alloc_length = ctx->alloc_end - ctx->data;
+    size_t new_alloc_length;
     uint8_t* new_data;
 
-    alloc_length *= 2;
-    SDLOG_CHECK_OOM(new_data = sdlog_realloc(ctx->data, alloc_length));
+    new_alloc_length = alloc_length * 2;
+    SDLOG_CHECK_OOM(new_data = sdlog_realloc(ctx->data, alloc_length, new_alloc_length));
 
     ctx->data = new_data;
     ctx->end = ctx->data + length;
-    ctx->alloc_end = ctx->data + alloc_length;
+    ctx->alloc_end = ctx->data + new_alloc_length;
 
     return SDLOG_SUCCESS;
 }

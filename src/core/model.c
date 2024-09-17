@@ -197,7 +197,10 @@ sdlog_error_t sdlog_message_format_add_column(
         }
 
         SDLOG_CHECK_OOM(
-            new_columns = sdlog_realloc(format->columns, new_size * sizeof(sdlog_message_column_format_t)));
+            new_columns = sdlog_realloc(
+                format->columns,
+                format->num_alloc_columns * sizeof(sdlog_message_column_format_t),
+                new_size * sizeof(sdlog_message_column_format_t)));
         format->columns = new_columns;
         format->num_alloc_columns = new_size;
     }
