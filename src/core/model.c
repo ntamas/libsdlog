@@ -130,12 +130,12 @@ char* sdlog_message_format_get_column_names(
 
     for (i = 0, write_ptr = result; i < num_columns; i++) {
         if (i > 0) {
-            strncpy(write_ptr, sep, sep_length);
+            memcpy(write_ptr, sep, sep_length);
             write_ptr += sep_length;
         }
 
         length = strlen(format->columns[i].name);
-        strncpy(write_ptr, format->columns[i].name, length);
+        memcpy(write_ptr, format->columns[i].name, length);
         write_ptr += length;
     }
 
