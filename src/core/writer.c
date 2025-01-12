@@ -1,7 +1,7 @@
 /*
  * This file is part of libsdlog.
  *
- * Copyright 2023-2024 Tamas Nepusz.
+ * Copyright 2023-2025 Tamas Nepusz.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -136,7 +136,7 @@ static sdlog_error_t write_format(sdlog_writer_t* writer, const sdlog_message_fo
     retval = write_record(
         writer, &writer->fmt_message_format,
         /* type = */ format->id,
-        /* length = */ sdlog_message_format_get_size(format),
+        /* length = */ sdlog_message_format_get_size(format) + 3,
         /* name = */ format->type,
         /* format = */ format_str,
         /* columns = */ column_names);

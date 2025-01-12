@@ -1,7 +1,7 @@
 /*
  * This file is part of libsdlog.
  *
- * Copyright 2023-2024 Tamas Nepusz.
+ * Copyright 2023-2025 Tamas Nepusz.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -195,7 +195,7 @@ char* sdlog_message_format_get_format_string(const sdlog_message_format_t* forma
 /**
  * @brief Calculates the total size of a log record described by this format object.
  *
- * The returned size does not include the sync bytes and the format tag that are
+ * The returned size does \em not include the sync bytes and the format tag that are
  * printed in front of the log record when writing to a log stream.
  *
  * @param format  the format object to query
